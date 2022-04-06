@@ -22,7 +22,7 @@ exports.bmi = (payload) => {
     return result
 }
 
-/*exports.calc = (payload) => {
+exports.calc = (payload) => {
     const {num1, num2, opcode} = payload;
     console.log('### 진입 ### ')
     let_num1 = Number(num1)
@@ -50,4 +50,4 @@ exports.bmi = (payload) => {
     }
     console.log(`계산끝난 값들 : ${JSON.stringify(result)}`)
     return result
-  }*/
+  }
