@@ -5,6 +5,6 @@ exports.write = (req,res) => {
     console.log(`name 값 : ${name}`)
     console.log(`teamId 값 : ${teamId}`)
     console.log(`subject 값 : ${subject}`)
-    res.status(200).json({'reuslt' : 'ok'})
+    res.status(200).json({'result' : 'ok'})
 
 }
