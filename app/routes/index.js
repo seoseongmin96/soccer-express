@@ -1,10 +1,9 @@
+import express from 'express'
+const indexRouter = express.Router();
 
-var express = require('express');
-var router = express.Router();
+indexRouter.route('/').get(function(_req,res){
+  res.json({"현재 시간 : ": new Date().toLocaleString()})
+})
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Hello World' });
-});
 
-module.exports = router;
+export default indexRouter;
