@@ -1,9 +1,10 @@
-import MongoClient from 'mongodb'
+import { MongoClient } from 'mongodb'
 export default function Repository(){
-    const client = new MongoClient(process.env.NODE_ENV, {
+    const client = new MongoClient(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
+    let dbConnect = null
     return {
         acceptDb(callback){
             client.connect((err, db) => {
