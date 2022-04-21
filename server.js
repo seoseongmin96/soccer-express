@@ -3,6 +3,11 @@ import express from 'express'
 import db from './app/models/index.js'
 import apiRouter from "./app/routes/api.js"
 import indexRouter from './app/routes/index.js'
+import basicRouter from './app/routes/basic.js'
+import boardRouter from './app/routes/board.js'
+import userRouter from './app/routes/user.js'
+import todoRouter from './app/routes/todo.js'
+import ResponseService from './app/services/responseService.js'
 
 
 
@@ -17,6 +22,11 @@ async function startServer() {
     app.use(express.json());
     app.use("/", indexRouter);
     app.use("/api", apiRouter);
+    app.use("/basic", basicRouter);
+    app.use("/board", boardRouter);
+    app.use("/todo", todoRouter);
+    app.use("/user", userRouter);
+    const responseService = new ResponseService()
     //app.use("/api",app);
     //const APP = './app/routes'
     // const nodes = ['admin','basic','board','game','todo','user']
@@ -36,6 +46,18 @@ async function startServer() {
             console.log(' 몽고DB와 연결 실패', err)
             process.exit();
         });
+        app.all("*", function(_req, res) {
+            return responseService.notFoundResponse(res, "페이지를 찾을 수 없습니다");
+          });
+          
+          app.use((err, _req, res) => {
+            if(err.name == "UnauthorizedError"){
+              return responseService.unauthorizedResponse(res, err.message);
+            }
+          });
+
+
+
     app.listen(port, () => {
         console.log('***************** ***************** *****************')
         console.log('********** 서버가 정상적으로 실행되고 있습니다 *********')
