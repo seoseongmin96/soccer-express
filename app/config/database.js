@@ -1,5 +1,5 @@
 import { MongoClient } from 'mongodb'
-export default function Repository(){
+export default function Database(){
     const client = new MongoClient(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true

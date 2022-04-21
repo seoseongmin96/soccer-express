@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
-import UserModel from './user.model.js'
+import UserModel from './userModel.js'
 
 
 
