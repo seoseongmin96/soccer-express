@@ -1,9 +1,9 @@
 import db from "../models/index.js"
-import Repository from '../config/database.js'
-import dotenv from 'dotenv'
+//import getDatabase from '../lambdas/getDatabasejs'
+
 export default function UserService() {
     const User = db.User
-    const dbo = new Repository()
+    const dbo = getDatabase()
     const dbConnect = dbo.getDb();
     dotenv.config()
 
@@ -52,21 +52,16 @@ export default function UserService() {
                 .findOne({userid: req.body.userid}, function(err, user){
                     if(err) throw err
                     if(!user){
-                        res.status(401).send({success: false, msg: 'Authentication failed. User not found.'});
+                        res.status(401).send({success: false, msg: '해당 ID가 존재하지 않습니다'});
                     }else{
                         console.log(' ### 로그인 정보 : '+ JSON.stringify(user))
                         user.comparePassword(req.body.password, function(_err, isMatch){
                             console.log(' ### JWT 발급 전 : ')
                             if(!isMatch){
-                                console.log(' ### 비밀번호가 틀렸 : ')
-                                res.status(401).send({loginSuccess: false, msg: '비밀번호가 틀렸습니다.'});
+                                console.log(' ### 비밀번호가 틀렸다 ')
+                                res.status(401).send({loginSuccess: false, msg: '비밀번호가 틀렸습니다'});
                             }else{
                                 console.log(' ### JWT 발급 직전 : ')
-                                /**const token = jwt.sign(user.toJSON(), 'jwt-secret', {
-                                    expiresIn: 604800 // 1 week
-                                })
-                                console.log(' ### JWT 발급 : '+ token)
-                                res.json({success: true, token: 'JWT ' + token});*/
                                 user.generateToken((err, user)=>{
                                     if(err) res.status(400).send(err)
                         
@@ -105,8 +100,36 @@ export default function UserService() {
                     }
                 }) */
         },
-        logout(){
+        logout() {
+            req.logout();
+            res.json({success: true, msg: '로그아웃'});
 
+        },
+        checkDuplicateUserid(req, res) {
+            User
+                .findById({userid: req.body.userid})
+                .exec((err, user) => {
+                    if (err) {
+                        res
+                            .status(500)
+                            .send({message: err});
+                        return;
+                    }
+                    if (user) {
+                        res
+                            .status(400)
+                            .send({message: "ID가 이미 존재합니다"});
+                        return;
+                    }
+                })
+        },
+        getUserById(userid){
+            User
+                .findById({userid: userid})
+                .exec((_err, user) => {
+                    return user
+                })
         }
+
     } // return
 }

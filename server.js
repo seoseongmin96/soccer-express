@@ -1,5 +1,7 @@
 import dotenv from 'dotenv'
 import express from 'express'
+//import passport from 'passport'
+import morgan from 'morgan'
 import db from './app/models/index.js'
 import apiRouter from "./app/routes/api.js"
 import indexRouter from './app/routes/index.js'
@@ -7,32 +9,29 @@ import basicRouter from './app/routes/basic.js'
 import boardRouter from './app/routes/board.js'
 import userRouter from './app/routes/user.js'
 import todoRouter from './app/routes/todo.js'
-import ResponseService from './app/services/responseService.js'
+//import getResponse from "../app/lambdas/getResponse.js"
+import applyPassport from './app/lambdas/applyPassport.js'
+import applyDotenv from './app/lambdas/applyDotenv.js'
+
+
 
 
 
 async function startServer() {
-    dotenv.config()
     const app = express();
-    const mongoUri = process.env.MONGO_URI
-    const port = process.env.PORT
-
+    const {mongoUri, port, jwtSecret } = applyDotenv(dotenv)
     app.use(express.static('public'));
     app.use(express.urlencoded({extended: true}));
     app.use(express.json());
+    //const _passport = applyPassport(passport, jwtSecret);
+    //app.use(_passport.initialize());
     app.use("/", indexRouter);
     app.use("/api", apiRouter);
     app.use("/basic", basicRouter);
     app.use("/board", boardRouter);
-    app.use("/todo", todoRouter);
+    //app.use("/todo", _passport.authenticate('jwt',{session:false}), todoRouter);
     app.use("/user", userRouter);
-    const responseService = new ResponseService()
-    //app.use("/api",app);
-    //const APP = './app/routes'
-    // const nodes = ['admin','basic','board','game','todo','user']
-    //const nodes = ['basic', 'board', 'user', 'todo']
-
-   
+    app.use(morgan('dev'))
     
     db.mongoose
         .connect(mongoUri, {

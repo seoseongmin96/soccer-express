@@ -1,16 +1,37 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
+import applyDontev from '../lambdas/applyDotenv.js'
+
 export default function UserModel(mongoose){
+    const {mongoUri, port, Schema} = applyDontev(dotenv)
     const userSchema = mongoose.Schema(
-        {   userid: String,
+        {   userid: {type: String, maxlength: 10, unique: 1},
             password: String,  
-            email: String,
+            email: {type: String, trim: true, unique: 1},
             name: String,  
-            phone: String,
+            phone: {type: String, maxlength: 15},
             birth: String,
-            address: String
+            address: String,
+            token: String
         }, { timestamps: true}
     )
+    userSchema.pre("save", function (next) {
+        let user = this;
+        //model 안의 paswsword가 변환될때만 암호화
+        if (user.isModified("password")) {
+          bcrypt.genSalt(saltRounds, function (err, salt) {
+            if (err) return next(err);
+            bcrypt.hash(user.password, salt, function (err, hash) {
+              if (err) return next(err);
+              user.password = hash;
+              next();
+            });
+          });
+        } else {
+          next();
+        }
+      });
     userSchema.methods.comparePassword = function(plainPassword,cb){
         //cb는 (err,isMatch)이다.
         //plainPassword 유저가 입력한 password
@@ -48,7 +69,7 @@ export default function UserModel(mongoose){
     var user = this;
 
     //userid를 찾으면 위에서 secret으로 넣어준다. 여기서 decode는 user_id(위에서 넘겨준)가 될 것이다. 
-    jwt.verify(token, 'secret', function(err, decode){
+    jwt.verify(token, process.env.JWT_SECRET, function(err, decode){
         //이 아이디와 토큰을 가진 유저를 찾는다.
         user.findOne({"_id":decode, "token": token}, function(err, user){
             if(err)return cb(err);
@@ -59,4 +80,5 @@ export default function UserModel(mongoose){
   }
     return mongoose.model('User', userSchema)
 }
+
 
